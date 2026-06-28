@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>DIKSTERS · Card Generator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=EB+Garamond:ital,wght@1,500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #0C0C0E;
+    --panel: #1A1A1D;
+    --panel-border: #303036;
+    --hairline: #2E2E33;
+    --ink: #F4F2EC;
+    --muted: #8A8A8F;
+    --faint: #5C5C60;
+    --gold: #D4AF6A;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Manrope", system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--gold); }
+
+  .wrap {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 24px 18px 80px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 28px;
+    align-items: start;
+  }
+  @media (max-width: 880px) {
+    .wrap { grid-template-columns: 1fr; }
+    .preview-col { position: static !important; }
+  }
+
+  .brandbar {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 4px 2px 8px;
+  }
+  .brandbar .mk {
+    width: 14px; height: 14px; border-radius: 4px;
+    background: var(--gold);
+  }
+  .brandbar h1 {
+    font-size: 22px; font-weight: 800; letter-spacing: 3px;
+    margin: 0;
+  }
+  .brandbar .tg {
+    font-family: "EB Garamond", serif; font-style: italic; font-weight: 500;
+    color: var(--muted); font-size: 16px;
+  }
+
+  /* Controls */
+  .controls { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
+  .group { display: flex; flex-direction: column; gap: 8px; }
+  .group > label.title {
+    font-size: 12px; font-weight: 700; letter-spacing: 1.5px;
+    text-transform: uppercase; color: var(--muted);
+  }
+  .card-block {
+    background: var(--panel);
+    border: 1px solid var(--panel-border);
+    border-radius: 14px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field label { font-size: 12.5px; color: var(--muted); font-weight: 600; }
+  input[type="text"], input[type="number"], input[list] {
+    background: #121214;
+    border: 1px solid var(--panel-border);
+    color: var(--ink);
+    border-radius: 10px;
+    padding: 11px 12px;
+    font-size: 15px;
+    font-family: inherit;
+    width: 100%;
+    min-height: 44px;
+  }
+  input:focus { outline: none; border-color: var(--gold); }
+
+  .seg {
+    display: inline-flex;
+    background: #121214;
+    border: 1px solid var(--panel-border);
+    border-radius: 12px;
+    padding: 4px;
+    gap: 4px;
+    flex-wrap: wrap;
+  }
+  .seg button {
+    border: 0; background: transparent; color: var(--muted);
+    font-family: inherit; font-size: 14px; font-weight: 600;
+    padding: 9px 16px; border-radius: 9px; cursor: pointer;
+    min-height: 40px;
+  }
+  .seg button.active { background: var(--gold); color: #1a1408; }
+  .seg button.active.win { background: #4FC58A; color: #06210f; }
+  .seg button.active.lose { background: #C56E6E; color: #2a0c0c; }
+  .seg button.active.void { background: #9AA3AC; color: #121417; }
+
+  .chips { display: flex; gap: 8px; flex-wrap: wrap; }
+  .chips button {
+    border: 1px solid var(--panel-border); background: #121214;
+    color: var(--muted); font-family: inherit; font-size: 13px;
+    padding: 7px 12px; border-radius: 999px; cursor: pointer;
+  }
+  .chips button:hover { border-color: var(--gold); color: var(--ink); }
+
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 460px) { .row2 { grid-template-columns: 1fr; } }
+
+  .checkrow { display: flex; align-items: center; gap: 10px; }
+  .checkrow input { width: 20px; height: 20px; accent-color: var(--gold); }
+  .checkrow label { font-size: 14px; color: var(--ink); }
+
+  .leg-title {
+    font-size: 11px; font-weight: 700; letter-spacing: 1.5px;
+    text-transform: uppercase; color: var(--gold);
+  }
+
+  .autolink { font-size: 12px; color: var(--gold); cursor: pointer; user-select: none; }
+  .inline { display: flex; align-items: center; gap: 10px; justify-content: space-between; }
+
+  .note {
+    font-size: 12.5px; color: var(--faint); line-height: 1.5;
+    border-left: 2px solid var(--panel-border); padding-left: 12px;
+  }
+
+  .dl-btn {
+    background: var(--gold); color: #1a1408; border: 0;
+    font-family: inherit; font-weight: 800; font-size: 16px;
+    padding: 16px; border-radius: 12px; cursor: pointer; width: 100%;
+    letter-spacing: 0.3px;
+  }
+  .dl-btn:active { transform: translateY(1px); }
+
+  /* Preview */
+  .preview-col { position: sticky; top: 18px; min-width: 0; }
+  .canvas-shell {
+    background: #08080a;
+    border: 1px solid var(--panel-border);
+    border-radius: 16px;
+    padding: 16px;
+    display: flex;
+    justify-content: center;
+  }
+  canvas {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    display: block;
+  }
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="brandbar">
+      <div class="mk"></div>
+      <h1>DIKSTERS</h1>
+      <span class="tg">Football. Decoded.</span>
+    </div>
+
+    <!-- ============ CONTROLS ============ -->
+    <div class="controls">
+      <div class="group">
+        <label class="title">Τύπος δελτίου</label>
+        <div class="seg" id="segType">
+          <button data-v="single" class="active">Μονό</button>
+          <button data-v="parlay">Παρολί</button>
+        </div>
+      </div>
+
+      <div class="group">
+        <label class="title">Κατάσταση</label>
+        <div class="seg" id="segState">
+          <button data-v="pick" class="active">Pick</button>
+          <button data-v="won">Won</button>
+          <button data-v="lost">Lost</button>
+          <button data-v="void">Void</button>
+        </div>
+      </div>
+
+      <div class="group">
+        <label class="title">Μέγεθος</label>
+        <div class="seg" id="segSize">
+          <button data-v="feed" class="active">Feed 4:5</button>
+          <button data-v="story">Story 9:16</button>
+        </div>
+      </div>
+
+      <div class="card-block">
+        <div class="field">
+          <label>Αναλυτής</label>
+          <input type="text" id="analyst" value="igniz" />
+          <div class="chips" id="analystChips">
+            <button data-v="igniz">igniz</button>
+            <button data-v="DaTac21">DaTac21</button>
+            <button data-v="SalisL18">SalisL18</button>
+          </div>
+        </div>
+        <div class="field">
+          <label>Μονάδες (units)</label>
+          <input type="number" id="units" value="1" min="0" step="0.25" />
+        </div>
+      </div>
+
+      <!-- SINGLE FIELDS -->
+      <div class="card-block" id="singleFields">
+        <label class="leg-title">Μονό</label>
+        <div class="field">
+          <label>Market</label>
+          <input type="text" id="s_market" list="marketList" value="Match Result" />
+        </div>
+        <div class="row2">
+          <div class="field">
+            <label>Ομάδα Α</label>
+            <input type="text" id="s_teamA" value="Arsenal" />
+          </div>
+          <div class="field">
+            <label>Ομάδα Β</label>
+            <input type="text" id="s_teamB" value="Chelsea" />
+          </div>
+        </div>
+        <div class="field">
+          <label>Επιλογή</label>
+          <input type="text" id="s_sel" value="Arsenal Win" />
+        </div>
+        <div class="field">
+          <label>Απόδοση</label>
+          <input type="number" id="s_odds" value="1.85" min="1" step="0.01" />
+        </div>
+      </div>
+
+      <!-- PARLAY FIELDS -->
+      <div class="card-block hidden" id="parlayFields">
+        <label class="leg-title">Σκέλος 1</label>
+        <div class="field">
+          <label>Market</label>
+          <input type="text" id="p1_market" list="marketList" value="Match Result" />
+        </div>
+        <div class="row2">
+          <div class="field"><label>Ομάδα Α</label><input type="text" id="p1_teamA" value="Real Madrid" /></div>
+          <div class="field"><label>Ομάδα Β</label><input type="text" id="p1_teamB" value="Barcelona" /></div>
+        </div>
+        <div class="field"><label>Επιλογή</label><input type="text" id="p1_sel" value="Real Madrid Win" /></div>
+        <div class="field"><label>Απόδοση</label><input type="number" id="p1_odds" value="2.10" min="1" step="0.01" /></div>
+
+        <hr style="border:0;border-top:1px solid var(--hairline);margin:2px 0;" />
+
+        <label class="leg-title">Σκέλος 2</label>
+        <div class="field">
+          <label>Market</label>
+          <input type="text" id="p2_market" list="marketList" value="Over 2.5 Goals" />
+        </div>
+        <div class="row2">
+          <div class="field"><label>Ομάδα Α</label><input type="text" id="p2_teamA" value="Liverpool" /></div>
+          <div class="field"><label>Ομάδα Β</label><input type="text" id="p2_teamB" value="Man City" /></div>
+        </div>
+        <div class="field"><label>Επιλογή</label><input type="text" id="p2_sel" value="Over 2.5" /></div>
+        <div class="field"><label>Απόδοση</label><input type="number" id="p2_odds" value="1.72" min="1" step="0.01" /></div>
+
+        <hr style="border:0;border-top:1px solid var(--hairline);margin:2px 0;" />
+
+        <div class="checkrow">
+          <input type="checkbox" id="trebleOn" />
+          <label for="trebleOn">Τρίτο σκέλος (Treble)</label>
+        </div>
+
+        <div id="leg3" class="hidden" style="display:flex;flex-direction:column;gap:14px;">
+          <label class="leg-title">Σκέλος 3</label>
+          <div class="field">
+            <label>Market</label>
+            <input type="text" id="p3_market" list="marketList" value="Both Teams to Score" />
+          </div>
+          <div class="row2">
+            <div class="field"><label>Ομάδα Α</label><input type="text" id="p3_teamA" value="Inter" /></div>
+            <div class="field"><label>Ομάδα Β</label><input type="text" id="p3_teamB" value="Juventus" /></div>
+          </div>
+          <div class="field"><label>Επιλογή</label><input type="text" id="p3_sel" value="Yes" /></div>
+          <div class="field"><label>Απόδοση</label><input type="number" id="p3_odds" value="1.65" min="1" step="0.01" /></div>
+        </div>
+
+        <hr style="border:0;border-top:1px solid var(--hairline);margin:2px 0;" />
+
+        <div class="field">
+          <div class="inline">
+            <label>Τελική απόδοση</label>
+            <span class="autolink" id="autoOdds">↻ αυτόματο</span>
+          </div>
+          <input type="number" id="p_total" value="3.61" min="1" step="0.01" />
+        </div>
+      </div>
+
+      <div class="note">
+        Pick = πριν τη σέντρα. Μόλις κλείσει το ματς, γύρνα την Κατάσταση σε Won/Lost/Void και ξανακατέβασε.
+      </div>
+
+      <button class="dl-btn" id="download">⬇ Κατέβασε PNG</button>
+    </div>
+
+    <!-- ============ PREVIEW ============ -->
+    <div class="preview-col">
+      <div class="canvas-shell">
+        <canvas id="card"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <datalist id="marketList">
+    <option>Match Result</option>
+    <option>Double Chance</option>
+    <option>Over 2.5 Goals</option>
+    <option>Under 2.5 Goals</option>
+    <option>Both Teams to Score</option>
+    <option>Shots on Target</option>
+    <option>Team Fouls</option>
+    <option>Corners</option>
+    <option>Cards</option>
+    <option>Anytime Goalscorer</option>
+    <option>Asian Handicap</option>
+    <option>Total Goals</option>
+  </datalist>
+
+<script>
+"use strict";
+
+/* ---------- roundRect polyfill ---------- */
+if (!CanvasRenderingContext2D.prototype.roundRect) {
+  CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
+    if (typeof r === "number") r = { tl: r, tr: r, br: r, bl: r };
+    else if (Array.isArray(r)) {
+      const a = r;
+      r = { tl: a[0], tr: a[1] !== undefined ? a[1] : a[0], br: a[2] !== undefined ? a[2] : a[0], bl: a[3] !== undefined ? a[3] : a[0] };
+    } else r = { tl: r.tl || 0, tr: r.tr || 0, br: r.br || 0, bl: r.bl || 0 };
+    this.beginPath();
+    this.moveTo(x + r.tl, y);
+    this.lineTo(x + w - r.tr, y);
+    this.arcTo(x + w, y, x + w, y + r.tr, r.tr);
+    this.lineTo(x + w, y + h - r.br);
+    this.arcTo(x + w, y + h, x + w - r.br, y + h, r.br);
+    this.lineTo(x + r.bl, y + h);
+    this.arcTo(x, y + h, x, y + h - r.bl, r.bl);
+    this.lineTo(x, y + r.tl);
+    this.arcTo(x, y, x + r.tl, y, r.tl);
+    this.closePath();
+    return this;
+  };
+}
+
+/* ---------- Tokens ---------- */
+const COLORS = {
+  ink: "#F4F2EC",
+  muted: "#8A8A8F",
+  faint: "#5C5C60",
+  panel: "#1A1A1D",
+  panelBorder: "#303036",
+  hairline: "#2E2E33",
+  gold: [212, 175, 106],
+  win: [79, 197, 138],
+  lose: [197, 110, 110],
+  void: [154, 163, 172],
+};
+const rgba = (c, a) => `rgba(${c[0]},${c[1]},${c[2]},${a})`;
+const rgb = (c) => `rgb(${c[0]},${c[1]},${c[2]})`;
+
+const S = 2; // supersample
+const M = 90; // margin
+const CX = 540; // center x
+
+/* ---------- State ---------- */
+const state = {
+  type: "single",
+  cardState: "pick",
+  size: "feed",
+};
+
+/* ---------- DOM ---------- */
+const $ = (id) => document.getElementById(id);
+const canvas = $("card");
+const ctx = canvas.getContext("2d");
+
+/* ---------- Helpers ---------- */
+function num(v) {
+  const n = parseFloat(v);
+  return isFinite(n) ? n : NaN;
+}
+function fmtOdds(n) {
+  return isFinite(n) ? n.toFixed(2) : "—";
+}
+
+// tracked text: advance each char by charWidth + tracking
+function trackedText(ctx, text, x, y, tracking, align) {
+  text = text == null ? "" : String(text);
+  let total = 0;
+  for (const ch of text) total += ctx.measureText(ch).width + tracking;
+  total -= tracking;
+  let startX = x;
+  if (align === "center") startX = x - total / 2;
+  else if (align === "right") startX = x - total;
+  const prevAlign = ctx.textAlign;
+  ctx.textAlign = "left";
+  let cx = startX;
+  for (const ch of text) {
+    ctx.fillText(ch, cx, y);
+    cx += ctx.measureText(ch).width + tracking;
+  }
+  ctx.textAlign = prevAlign;
+  return total;
+}
+
+// autofit: shrink font size until text fits maxWidth
+function autofit(ctx, text, maxSize, maxWidth, weight) {
+  text = text == null ? "" : String(text);
+  let size = maxSize;
+  while (size > 8) {
+    ctx.font = `${weight} ${size}px Manrope`;
+    if (ctx.measureText(text).width <= maxWidth) break;
+    size -= 1;
+  }
+  return size;
+}
+
+function font(weight, size) {
+  return `${weight} ${size}px Manrope`;
+}
+
+function accentColor() {
+  if (state.cardState === "won") return COLORS.win;
+  if (state.cardState === "lost") return COLORS.lose;
+  if (state.cardState === "void") return COLORS.void;
+  return COLORS.gold;
+}
+
+/* ---------- Data gather ---------- */
+function gather() {
+  const analyst = ($("analyst").value || "").trim() || "igniz";
+  const units = num($("units").value);
+  const d = { analyst, units, type: state.type, cardState: state.cardState, size: state.size };
+
+  if (state.type === "single") {
+    d.market = ($("s_market").value || "").trim();
+    d.teamA = ($("s_teamA").value || "").trim();
+    d.teamB = ($("s_teamB").value || "").trim();
+    d.sel = ($("s_sel").value || "").trim();
+    d.odds = num($("s_odds").value);
+    d.totalOdds = d.odds;
+    d.legs = [{ market: d.market, teamA: d.teamA, teamB: d.teamB, sel: d.sel, odds: d.odds }];
+  } else {
+    const legs = [];
+    const treble = $("trebleOn").checked;
+    const count = treble ? 3 : 2;
+    for (let i = 1; i <= count; i++) {
+      legs.push({
+        market: ($(`p${i}_market`).value || "").trim(),
+        teamA: ($(`p${i}_teamA`).value || "").trim(),
+        teamB: ($(`p${i}_teamB`).value || "").trim(),
+        sel: ($(`p${i}_sel`).value || "").trim(),
+        odds: num($(`p${i}_odds`).value),
+      });
+    }
+    d.legs = legs;
+    d.treble = treble;
+    const manual = num($("p_total").value);
+    d.totalOdds = isFinite(manual) ? manual : computeParlay(legs);
+  }
+  return d;
+}
+
+function computeParlay(legs) {
+  let prod = 1;
+  let any = false;
+  for (const l of legs) {
+    if (isFinite(l.odds)) { prod *= l.odds; any = true; }
+  }
+  return any ? prod : NaN;
+}
+
+/* ---------- Background & motif ---------- */
+function drawBackground(W, H) {
+  // vertical gradient
+  const g = ctx.createLinearGradient(0, 0, 0, H);
+  g.addColorStop(0, "#141416");
+  g.addColorStop(1, "#0C0C0E");
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, W, H);
+
+  // radial vignette darkening edges, centered ~42% height
+  const cx = W / 2, cy = H * 0.42;
+  const rad = ctx.createRadialGradient(cx, cy, Math.min(W, H) * 0.2, cx, cy, Math.max(W, H) * 0.72);
+  rad.addColorStop(0, "rgba(0,0,0,0)");
+  rad.addColorStop(1, "rgba(0,0,0,0.20)");
+  ctx.fillStyle = rad;
+  ctx.fillRect(0, 0, W, H);
+}
+
+function drawScopePick(W, H) {
+  // gold ghost: 3 rings near (92%W, 86%H)
+  const cx = W * 0.92, cy = H * 0.86;
+  ctx.lineWidth = 2;
+  ctx.strokeStyle = rgba(COLORS.gold, 0.055);
+  [180, 320, 470].forEach((r) => {
+    ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.stroke();
+  });
+  ctx.fillStyle = rgba(COLORS.gold, 0.07);
+  ctx.beginPath(); ctx.arc(cx, cy, 5, 0, Math.PI * 2); ctx.fill();
+
+  // small echo top-left
+  const ex = W * 0.08, ey = H * 0.16;
+  ctx.strokeStyle = rgba(COLORS.gold, 0.05);
+  [90, 160].forEach((r) => {
+    ctx.beginPath(); ctx.arc(ex, ey, r, 0, Math.PI * 2); ctx.stroke();
+  });
+}
+
+function drawScopeResult(W, H, color) {
+  // tinted scene: 4 rings near (90%W, 80%H)
+  const cx = W * 0.90, cy = H * 0.80;
+  ctx.lineWidth = 2;
+  ctx.strokeStyle = rgba(color, 0.10);
+  const radii = [170, 300, 430, 560];
+  radii.forEach((r) => {
+    ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.stroke();
+  });
+  // four crosshair lines through center
+  ctx.strokeStyle = rgba(color, 0.063);
+  ctx.lineWidth = 2;
+  const maxR = 600;
+  ctx.beginPath();
+  ctx.moveTo(cx - maxR, cy); ctx.lineTo(cx + maxR, cy);
+  ctx.moveTo(cx, cy - maxR); ctx.lineTo(cx, cy + maxR);
+  ctx.stroke();
+  // diagonal pair
+  ctx.beginPath();
+  const dd = maxR * 0.72;
+  ctx.moveTo(cx - dd, cy - dd); ctx.lineTo(cx + dd, cy + dd);
+  ctx.moveTo(cx - dd, cy + dd); ctx.lineTo(cx + dd, cy - dd);
+  ctx.stroke();
+  // center dot
+  ctx.fillStyle = rgba(color, 0.14);
+  ctx.beginPath(); ctx.arc(cx, cy, 7, 0, Math.PI * 2); ctx.fill();
+
+  // top-left echo: 2 rings near (8%W,16%H)
+  const ex = W * 0.08, ey = H * 0.16;
+  ctx.strokeStyle = rgba(color, 0.05);
+  [90, 160].forEach((r) => {
+    ctx.beginPath(); ctx.arc(ex, ey, r, 0, Math.PI * 2); ctx.stroke();
+  });
+}
+
+/* ---------- Shared components ---------- */
+function drawHeader(yTop, accent) {
+  // small rounded gold square mark, centered above DIKSTERS
+  const markSize = 9;
+  ctx.fillStyle = rgb(accent);
+  ctx.beginPath();
+  ctx.roundRect(CX - markSize / 2, yTop - 30, markSize, markSize, 2.5);
+  ctx.fill();
+
+  ctx.fillStyle = COLORS.ink;
+  ctx.font = font(800, 40);
+  trackedText(ctx, "DIKSTERS", CX, yTop + 16, 9, "center");
+
+  ctx.fillStyle = COLORS.muted;
+  ctx.font = "italic 500 25px 'EB Garamond'";
+  ctx.textAlign = "center";
+  ctx.fillText("Football. Decoded.", CX, yTop + 52);
+  ctx.textAlign = "left";
+}
+
+function drawFooter(yBottom, W) {
+  const left = M, right = W - M;
+  // hairline
+  ctx.strokeStyle = COLORS.hairline;
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(left, yBottom - 30);
+  ctx.lineTo(right, yBottom - 30);
+  ctx.stroke();
+
+  ctx.fillStyle = COLORS.muted;
+  ctx.font = font(500, 21);
+  ctx.textAlign = "left";
+  ctx.fillText("t.me/diksters", left, yBottom + 2);
+
+  ctx.fillStyle = COLORS.faint;
+  ctx.font = font(500, 17);
+  trackedText(ctx, "21+ · PLAY RESPONSIBLY", right, yBottom + 1, 1.5, "right");
+}
+
+function panel(x, y, w, h) {
+  ctx.fillStyle = COLORS.panel;
+  ctx.beginPath();
+  ctx.roundRect(x, y, w, h, 26);
+  ctx.fill();
+  ctx.strokeStyle = COLORS.panelBorder;
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.roundRect(x, y, w, h, 26);
+  ctx.stroke();
+}
+
+/* ---------- Bar panel (odds/stake) ---------- */
+function drawBar(x, y, w, h, leftLabel, leftVal, leftColor, rightLabel, rightVal, rightColor) {
+  panel(x, y, w, h);
+  const midX = x + w / 2;
+  // divider
+  ctx.strokeStyle = COLORS.hairline;
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(midX, y + 26);
+  ctx.lineTo(midX, y + h - 26);
+  ctx.stroke();
+
+  const colCenter = (cx2, label, val, valColor) => {
+    ctx.fillStyle = COLORS.muted;
+    ctx.font = font(600, 15);
+    trackedText(ctx, label, cx2, y + 44, 2.5, "center");
+    ctx.fillStyle = valColor;
+    ctx.font = font(800, 50);
+    ctx.textAlign = "center";
+    ctx.fillText(val, cx2, y + h - 36);
+    ctx.textAlign = "left";
+  };
+  colCenter(x + w / 4, leftLabel, leftVal, leftColor);
+  colCenter(x + (w * 3) / 4, rightLabel, rightVal, rightColor);
+}
+
+/* ---------- Layout anchors per size ---------- */
+function anchors(W, H) {
+  if (state.size === "story") {
+    return { headerY: 200, footerY: 1820, contentTop: 360 };
+  }
+  return { headerY: 150, footerY: 1262, contentTop: 300 };
+}
+
+/* ---------- PICK SINGLE ---------- */
+function renderPickSingle(d, W, H, A) {
+  const accent = COLORS.gold;
+  // titles
+  let y = A.headerY + 120;
+  ctx.fillStyle = rgb(COLORS.gold);
+  ctx.font = font(600, 18);
+  trackedText(ctx, "MATCHDAY PICK", CX, y, 6, "center");
+  y += 28;
+  ctx.fillStyle = COLORS.muted;
+  ctx.font = font(500, 15);
+  trackedText(ctx, "SINGLE", CX, y, 3, "center");
+
+  // center the main block vertically for story
+  const panelW = W - 2 * M;
+  const px = M;
+  let pTop = state.size === "story" ? 760 : y + 60;
+  const pH = 360;
+  panel(px, pTop, panelW, pH);
+
+  const innerL = px + 46;
+  const innerR = px + panelW - 46;
+  let iy = pTop + 70;
+
+  // gold market label
+  ctx.fillStyle = rgb(COLORS.gold);
+  ctx.font = font(600, 16);
+  trackedText(ctx, (d.market || "MARKET").toUpperCase(), innerL, iy, 3, "left");
+
+  // match
+  iy += 56;
+  const matchText = d.teamA && d.teamB ? `${d.teamA} — ${d.teamB}` : (d.teamA || d.teamB || "—");
+  const mSize = autofit(ctx, matchText, 46, panelW - 92, 700);
+  ctx.fillStyle = COLORS.ink;
+  ctx.font = font(700, mSize);
+  ctx.textAlign = "left";
+  ctx.fillText(matchText, innerL, iy);
+
+  // selection (left) + odds (right)
+  iy += 86;
+  const oddsStr = "@ " + fmtOdds(d.odds);
+  ctx.font = font(800, 52);
+  const oddsW = ctx.measureText(oddsStr).width;
+  const selMax = panelW - 92 - oddsW - 24;
+  const selText = d.sel || "—";
+  const selSize = autofit(ctx, selText, 52, selMax, 800);
+  ctx.fillStyle = COLORS.ink;
+  ctx.font = font(800, selSize);
+  ctx.textAlign = "left";
+  ctx.fillText(selText, innerL, iy);
+  ctx.fillStyle = rgb(COLORS.gold);
+  ctx.font = font(800, 52);
+  ctx.textAlign = "right";
+  ctx.fillText(oddsStr, innerR, iy);
+  ctx.textAlign = "left";
+
+  // bar
+  const barTop = pTop + pH + 30;
+  const barH = 150;
+  drawBar(px, barTop, panelW, barH,
+    "ODDS", fmtOdds(d.odds), rgb(COLORS.gold),
+    "STAKE", (isFinite(d.units) ? d.units : "—") + "u", COLORS.ink);
+
+  // analyst
+  const ay = barTop + barH + 70;
+  ctx.fillStyle = COLORS.muted;
+  ctx.font = font(600, 18);
+  trackedText(ctx, `ANALYST · ${d.analyst}`, CX, ay, 3, "center");
+}
+
+/* ---------- PICK PARLAY ---------- */
+function renderPickParlay(d, W, H, A) {
+  let y = A.headerY + 120;
+  ctx.fillStyle = rgb(COLORS.gold);
+  ctx.font = font(600, 18);
+  trackedText(ctx, "MATCHDAY PARLAY", CX, y, 6, "center");
+  y += 28;
+  ctx.fillStyle = COLORS.muted;
+  ctx.font = font(500, 15);
+  const sub = d.legs.length === 3 ? "TREBLE · 3 LEGS" : "DOUBLE · 2 LEGS";
+  trackedText(ctx, sub, CX, y, 3, "center");
+
+  const panelW = W - 2 * M;
+  const px = M;
+  const n = d.legs.length;
+  const legH = n === 2 ? 188 : 150;
+  const padTop = 36;
+  const pH = padTop + legH * n + 24;
+  let pTop = state.size === "story" ? (980 - pH / 2) : y + 50;
+  panel(px, pTop, panelW, pH);
+
+  const innerL = px + 46;
+  const innerR = px + panelW - 46;
+
+  d.legs.forEach((leg, idx) => {
+    const top = pTop + padTop + idx * legH;
+    let ly = top + 36;
+    ctx.fillStyle = rgb(COLORS.gold);
+    ctx.font = font(600, 14);
+    trackedText(ctx, (leg.market || "MARKET").toUpperCase(), innerL, ly, 2.5, "left");
+
+    ly += 40;
+    const matchText = leg.teamA && leg.teamB ? `${leg.teamA} — ${leg.teamB}` : (leg.teamA || leg.teamB || "—");
+    const mSize = autofit(ctx, matchText, 38, panelW - 92, 700);
+    ctx.fillStyle = COLORS.ink;
+    ctx.font = font(700, mSize);
+    ctx.textAlign = "left";
+    ctx.fillText(matchText, innerL, ly);
+
+    ly += 56;
+    const oddsStr = "@ " + fmtOdds(leg.odds);
+    ctx.font = font(800, 40);
+    const oddsW = ctx.measureText(oddsStr).width;
+    const selMax = panelW - 92 - oddsW - 24;
+    const selSize = autofit(ctx, leg.sel || "—", 40, selMax, 800);
+    ctx.fillStyle = COLORS.ink;
+    ctx.font = font(800, selSize);
+    ctx.textAlign = "left";
+    ctx.fillText(leg.sel || "—", innerL, ly);
+    ctx.fillStyle = rgb(COLORS.gold);
+    ctx.font = font(800, 40);
+    ctx.textAlign = "right";
+    ctx.fillText(oddsStr, innerR, ly);
+    ctx.textAlign = "left";
+
+    // hairline divider between legs
+    if (idx < n - 1) {
+      ctx.strokeStyle = COLORS.hairline;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(innerL, top + legH - 2);
+      ctx.lineTo(innerR, top + legH - 2);
+      ctx.stroke();
+    }
+  });
+
+  // bar
+  const barTop = pTop + pH + 30;
+  const barH = 150;
+  drawBar(px, barTop, panelW, barH,
+    "TOTAL ODDS", fmtOdds(d.totalOdds), rgb(COLORS.gold),
+    "STAKE", (isFinite(d.units) ? d.units : "—") + "u", COLORS.ink);
+
+  const ay = barTop + barH + 70;
+  ctx.fillStyle = COLORS.muted;
+  ctx.font = font(600, 18);
+  trackedText(ctx, `ANALYST · ${d.analyst}`, CX, ay, 3, "center");
+}
+
+/* ---------- RESULT ---------- */
+function renderResult(d, W, H, A) {
+  const color = accentColor();
+  const panelW = W - 2 * M;
+
+  // RESULT label
+  let y = A.headerY + 120;
+  ctx.fillStyle = rgb(color);
+  ctx.font = font(600, 18);
+  trackedText(ctx, "RESULT", CX, y, 6, "center");
+
+  // vertical center block
+  let cy = state.size === "story" ? 720 : 470;
+
+  // headline
+  let headline;
+  if (d.type === "single") {
+    headline = d.teamA && d.teamB ? `${d.teamA} — ${d.teamB}` : (d.teamA || d.teamB || "—");
+  } else {
+    headline = d.legs.length === 3 ? "PARLAY — TREBLE" : "PARLAY — DOUBLE";
+  }
+  const hSize = autofit(ctx, headline, 40, panelW, 700);
+  ctx.fillStyle = COLORS.ink;
+  ctx.font = font(700, hSize);
+  ctx.textAlign = "center";
+  ctx.fillText(headline, CX, cy);
+  ctx.textAlign = "left";
+
+  // recap
+  cy += 44;
+  let recap;
+  if (d.type === "single") recap = d.sel || "—";
+  else recap = d.legs.map((l) => l.sel || "—").join("  ·  ");
+  const rSize = autofit(ctx, recap, 24, panelW, 500);
+  ctx.fillStyle = COLORS.muted;
+  ctx.font = font(500, rSize);
+  ctx.textAlign = "center";
+  ctx.fillText(recap, CX, cy);
+  ctx.textAlign = "left";
+
+  // odds·units line
+  cy += 42;
+  const units = isFinite(d.units) ? d.units : "—";
+  ctx.fillStyle = COLORS.faint;
+  ctx.font = font(600, 16);
+  trackedText(ctx, `@ ${fmtOdds(d.totalOdds)} · ${units}u`, CX, cy, 2, "center");
+
+  // status icon (circle radius ~66)
+  cy += 110;
+  const r = 66;
+  ctx.strokeStyle = rgb(color);
+  ctx.lineWidth = 5;
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+  ctx.beginPath();
+  ctx.arc(CX, cy, r, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.beginPath();
+  if (d.cardState === "won") {
+    ctx.moveTo(CX - 28, cy + 2);
+    ctx.lineTo(CX - 8, cy + 22);
+    ctx.lineTo(CX + 30, cy - 22);
+  } else if (d.cardState === "lost") {
+    ctx.moveTo(CX - 22, cy - 22);
+    ctx.lineTo(CX + 22, cy + 22);
+    ctx.moveTo(CX + 22, cy - 22);
+    ctx.lineTo(CX - 22, cy + 22);
+  } else {
+    ctx.moveTo(CX - 24, cy);
+    ctx.lineTo(CX + 24, cy);
+  }
+  ctx.stroke();
+
+  // big status word
+  cy += r + 130;
+  const word = d.cardState === "won" ? "WON" : d.cardState === "lost" ? "LOST" : "VOID";
+  ctx.fillStyle = rgb(color);
+  ctx.font = font(800, 118);
+  trackedText(ctx, word, CX, cy, 2, "center");
+
+  // P/L line
+  cy += 76;
+  let pl;
+  if (d.cardState === "won") {
+    const v = isFinite(d.totalOdds) && isFinite(d.units) ? ((d.totalOdds - 1) * d.units) : NaN;
+    pl = isFinite(v) ? `+${v.toFixed(2)}u` : "—";
+  } else if (d.cardState === "lost") {
+    pl = isFinite(d.units) ? `−${d.units.toFixed(2)}u` : "—";
+  } else {
+    pl = "0.00u";
+  }
+  ctx.fillStyle = rgb(color);
+  ctx.font = font(800, 58);
+  ctx.textAlign = "center";
+  ctx.fillText(pl, CX, cy);
+  ctx.textAlign = "left";
+
+  // analyst (faint)
+  cy += 66;
+  ctx.fillStyle = COLORS.faint;
+  ctx.font = font(600, 18);
+  trackedText(ctx, `ANALYST · ${d.analyst}`, CX, cy, 3, "center");
+}
+
+/* ---------- Main render ---------- */
+function render() {
+  const W = 1080;
+  const H = state.size === "story" ? 1920 : 1350;
+  canvas.width = W * S;
+  canvas.height = H * S;
+  ctx.setTransform(S, 0, 0, S, 0, 0);
+  ctx.clearRect(0, 0, W, H);
+  ctx.textBaseline = "alphabetic";
+
+  const d = gather();
+  const accent = accentColor();
+
+  drawBackground(W, H);
+  if (state.cardState === "pick") drawScopePick(W, H);
+  else drawScopeResult(W, H, accent);
+
+  const A = anchors(W, H);
+  drawHeader(A.headerY, accent);
+
+  if (state.cardState === "pick") {
+    if (d.type === "single") renderPickSingle(d, W, H, A);
+    else renderPickParlay(d, W, H, A);
+  } else {
+    renderResult(d, W, H, A);
+  }
+
+  drawFooter(A.footerY, W);
+}
+
+/* ---------- UI wiring ---------- */
+function bindSeg(id, key, after) {
+  const seg = $(id);
+  seg.querySelectorAll("button").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      seg.querySelectorAll("button").forEach((b) => b.classList.remove("active", "win", "lose", "void"));
+      btn.classList.add("active");
+      const v = btn.dataset.v;
+      if (id === "segState") {
+        if (v === "won") btn.classList.add("win");
+        else if (v === "lost") btn.classList.add("lose");
+        else if (v === "void") btn.classList.add("void");
+      }
+      state[key] = v;
+      if (after) after();
+      render();
+    });
+  });
+}
+
+function syncFieldVisibility() {
+  $("singleFields").classList.toggle("hidden", state.type !== "single");
+  $("parlayFields").classList.toggle("hidden", state.type !== "parlay");
+}
+
+bindSeg("segType", "type", syncFieldVisibility);
+bindSeg("segState", "cardState");
+bindSeg("segSize", "size");
+
+// analyst chips
+$("analystChips").querySelectorAll("button").forEach((b) => {
+  b.addEventListener("click", () => {
+    $("analyst").value = b.dataset.v;
+    render();
+  });
+});
+
+// treble toggle
+$("trebleOn").addEventListener("change", () => {
+  $("leg3").classList.toggle("hidden", !$("trebleOn").checked);
+  recomputeTotal();
+  render();
+});
+
+// auto total recompute
+function recomputeTotal() {
+  const d = gather();
+  if (state.type === "parlay") {
+    const legs = [];
+    const count = $("trebleOn").checked ? 3 : 2;
+    for (let i = 1; i <= count; i++) legs.push({ odds: num($(`p${i}_odds`).value) });
+    const total = computeParlay(legs);
+    if (isFinite(total)) $("p_total").value = total.toFixed(2);
+  }
+}
+
+$("autoOdds").addEventListener("click", () => {
+  recomputeTotal();
+  render();
+});
+
+// recompute total when leg odds change (but allow manual override after)
+["p1_odds", "p2_odds", "p3_odds"].forEach((id) => {
+  $(id).addEventListener("input", () => {
+    recomputeTotal();
+    render();
+  });
+});
+
+// generic input listeners -> re-render
+document.querySelectorAll("input").forEach((el) => {
+  el.addEventListener("input", render);
+});
+
+// download
+$("download").addEventListener("click", () => {
+  const d = gather();
+  const safe = (s) => String(s).replace(/[^a-z0-9]+/gi, "-").replace(/^-+|-+$/g, "") || "x";
+  const fname = `DIKSTERS_${safe(d.analyst)}_${safe(d.type)}_${safe(d.cardState)}.png`;
+  const url = canvas.toDataURL("image/png");
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = fname;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+});
+
+/* ---------- Init ---------- */
+syncFieldVisibility();
+if (document.fonts && document.fonts.ready) {
+  document.fonts.ready.then(render);
+} else {
+  render();
+}
+// fallback re-render once more after a tick in case fonts load late
+window.addEventListener("load", () => setTimeout(render, 300));
+</script>
+</body>
+</html>
