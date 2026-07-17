@@ -1,56 +1,135 @@
 @import "tailwindcss";
 
 @theme inline {
-  --color-bg: #0A0A0A;
-  --color-surface: #141414;
-  --color-surface-hover: #1A1A1A;
-  --color-border: #1E1E1E;
-  --color-border-strong: #2A2A2A;
-  --color-text-primary: #FAFAFA;
-  --color-text-secondary: #737373;
-  --color-text-muted: #525252;
-  --color-accent: #D4A843;
-  --color-accent-dim: rgba(212, 168, 67, 0.15);
-  --color-danger: #DC2626;
-  --color-danger-dim: rgba(220, 38, 38, 0.15);
-  --color-success: #22C55E;
-  --color-success-dim: rgba(34, 197, 94, 0.15);
-  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+  /* FETA POP core palette */
+  --color-cream: #fff6e9;
+  --color-cream-soft: #fbeeda;
+  --color-cream-deep: #f5e3c4;
+  --color-blue: #0d3b9c;
+  --color-blue-deep: #092d7a;
+  --color-blue-ink: #071f54;
+  --color-honey: #f2b233;
+  --color-honey-deep: #d99512;
+  --color-honey-soft: #fbdfa4;
+  --color-coral: #ff6858;
+  --color-coral-deep: #de4433;
+  --color-olive: #6a7f3d;
+  --color-olive-deep: #52642c;
+
+  /* Type system */
+  --font-display: var(--font-baloo), "Baloo 2", ui-rounded, system-ui, sans-serif;
+  --font-sans: var(--font-inter), "Inter", system-ui, -apple-system, sans-serif;
+  --font-hand: var(--font-caveat), "Caveat", "Comic Sans MS", cursive;
+
+  --shadow-pop: 0 10px 30px -12px rgba(13, 59, 156, 0.28);
+  --shadow-lift: 0 22px 48px -20px rgba(7, 31, 84, 0.35);
+
+  --animate-float: float 5s ease-in-out infinite;
+  --animate-spin-slow: spin 14s linear infinite;
+  --animate-wiggle: wiggle 0.5s ease-in-out;
+
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-8px);
+    }
+  }
+  @keyframes wiggle {
+    0%,
+    100% {
+      transform: rotate(0deg);
+    }
+    25% {
+      transform: rotate(-4deg);
+    }
+    75% {
+      transform: rotate(4deg);
+    }
+  }
 }
 
-* {
-  scrollbar-width: thin;
-  scrollbar-color: #1E1E1E #0A0A0A;
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--color-bg);
-  color: var(--color-text-primary);
+  background: var(--color-cream);
+  color: var(--color-blue-ink);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-}
-
-input,
-textarea,
-select {
-  background: var(--color-surface);
-  color: var(--color-text-primary);
-  border: 1px solid var(--color-border);
-  outline: none;
-}
-
-input:focus,
-textarea:focus,
-select:focus {
-  border-color: var(--color-border-strong);
+  overflow-x: clip;
 }
 
 ::selection {
-  background: var(--color-accent-dim);
-  color: var(--color-accent);
+  background: var(--color-honey);
+  color: var(--color-blue-ink);
 }
 
-textarea {
-  resize: vertical;
+/* Accessible focus states across the brand */
+:focus-visible {
+  outline: 3px solid var(--color-coral);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* Display headline default styling */
+.font-display {
+  letter-spacing: -0.01em;
+}
+
+/* Honey drizzle underline for emphasized words */
+.honey-underline {
+  background-image: linear-gradient(
+    to top,
+    var(--color-honey) 0%,
+    var(--color-honey) 32%,
+    transparent 32%
+  );
+  padding-inline: 0.08em;
+}
+
+/* Dotted "sesame" divider */
+.sesame-divider {
+  background-image: radial-gradient(
+    circle,
+    var(--color-honey-deep) 1.5px,
+    transparent 1.5px
+  );
+  background-size: 14px 14px;
+  background-position: center;
+  height: 6px;
+}
+
+/* Ticker marquee for the brand strip */
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.marquee-track {
+  animation: marquee 28s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .marquee-track {
+    animation: none;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
